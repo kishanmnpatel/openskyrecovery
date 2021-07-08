@@ -1,0 +1,241 @@
+<style id="style">
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: "$font_size";
+        zoom: 80%;
+    }
+
+    @page {
+        margin: $global_margin;
+        size: $page_size $page_layout;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+    }
+
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+    }
+
+    .header-wrapper #client-details,
+    .header-wrapper #company-details,
+    .header-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+    }
+
+    [data-ref="company_details-company.name"] {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    .header-wrapper #client-details > *:first-child {
+        font-weight: bold;
+    }
+
+    .header-wrapper .company-info-wrapper > * {
+        margin-bottom: 1rem;
+    }
+
+    .entity-label-wrapper {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        margin-top: 3rem;
+    }
+
+    .entity-label-wrapper .entity-label > * {
+        font-size: 3rem;
+    }
+
+    .entity-label-wrapper .entity-label > *:first-child {
+        text-transform: uppercase;
+    }
+
+    .entity-label-wrapper .entity-label > *:last-child {
+        color: var(--primary-color);
+        font-style: italic;
+    }
+
+    .entity-label-wrapper #entity-details {
+        text-align: left;
+    }
+
+    .entity-label-wrapper #entity-details > tr,
+    .entity-label-wrapper #entity-details th {
+        font-weight: normal;
+    }
+
+    #product-table,
+    #delivery-note-table,
+    #task-table {
+        /* margin-bottom: 200px; */
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    #product-table:not(:empty),
+    #delivery-note-table:not(:empty),
+    #task-table:not(:empty) {
+        border-top: 5px solid var(--primary-color);
+        margin-top: 3rem;
+    }
+
+    .task-time-details {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    #product-table > thead,
+    #delivery-note-table > thead,
+    #task-table > thead {
+        text-align: left;
+    }
+
+    #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
+    #task-table > thead > tr > th {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
+        padding: 1rem;
+    }
+
+    #product-table > tbody > tr:nth-child(odd),
+    #delivery-note-table > tbody > tr:nth-child(odd),
+    #task-table > tbody > tr:nth-child(odd) {
+        background-color: #e8e8e8;
+    }
+
+    #table-totals {
+        page-break-inside: avoid;
+    }
+
+    #table-totals {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        padding-top: 1rem;
+        gap: 80px;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
+    }
+
+    #table-totals
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    #table-totals > * > * {
+        padding-left: 1rem;
+    }
+
+    #table-totals > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="total_table-footer"] {
+        padding-left: 1rem
+    }
+
+    #footer {
+        margin-top: 30px;
+    }
+</style>
+
+<div id="header"></div>
+
+<div id="body">
+    <div class="header-wrapper">
+        <div id="client-details"></div>
+
+        <div class="company-info-wrapper">
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
+
+        <img
+            class="company-logo"
+            src="$company.logo"
+            alt="$company.name logo"
+        />
+    </div>
+
+    <div class="entity-label-wrapper">
+        <h1 class="entity-label">
+            <span>$entity_label</span>&nbsp;
+            <span>#$entity_number</span>
+        </h1>
+
+        <table id="entity-details" cellspacing="0"></table>
+    </div>
+
+    <table id="product-table" cellspacing="0"></table>
+
+    <table id="task-table" cellspacing="0"></table>
+
+    <table id="delivery-note-table" cellspacing="0"></table>
+    
+    <div id="table-totals" cellspacing="0"></div>
+</div>
+
+<div id="footer">
+    <p data-ref="total_table-footer">$entity_footer</p>
+
+    <script>
+        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+        document.addEventListener('DOMContentLoaded', () => {
+            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                document.getElementById(tableIdentifier).childElementCount === 0
+                    ? document.getElementById(tableIdentifier).style.display = 'none'
+                    : '';
+            });
+        });
+    </script>
+</div>

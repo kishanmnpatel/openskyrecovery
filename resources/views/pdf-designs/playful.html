@@ -1,0 +1,302 @@
+<style id="style">
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: "$font_size";
+        zoom: 80%;
+    }
+
+    @page {
+        margin: -0.25cm !important;
+        size: $page_size $page_layout;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-wrapper {
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 0.5fr 2fr;
+        padding: 2rem 3rem;
+    }
+
+    .header-wrapper .entity-details-wrapper {
+        background-color: var(--primary-color);
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .header-wrapper #entity-details {
+        width: 100%;
+        color: white;
+        text-align: left;
+    }
+
+    .header-wrapper #entity-details > tr,
+    .header-wrapper #entity-details th {
+        font-weight: normal;
+    }
+
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+    }
+
+    .contacts-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding: 3rem;
+    }
+
+    .contacts-wrapper .contact-label {
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-left: 1rem;
+    }
+
+    .contacts-wrapper #company-address,
+    .contacts-wrapper #company-details,
+    .contacts-wrapper #client-details {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+
+    .contacts-wrapper .company-info {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-top: 1px solid var(--primary-color);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .contacts-wrapper #client-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+    .contact-wrapper-left-side,
+    .contact-wrapper-right-side {
+        border-bottom: 1px solid var(--primary-color);
+    }
+
+    #product-table,
+    #delivery-note-table,
+    #task-table {
+        padding-left: 3rem;
+        padding-right: 3rem;
+        margin-top: 3rem;
+        /* margin-bottom: 200px; */
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    .task-time-details {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    #product-table > thead,
+    #delivery-note-table > thead,
+    #task-table > thead {
+        text-align: left;
+    }
+
+    #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
+    #task-table > thead > tr > th {
+        font-size: 1.2rem;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+    }
+
+    #product-table > thead tr > th:last-child,
+    #delivery-note-table > thead tr > th:last-child,
+    #task-table > thead tr > th:last-child {
+        text-align: right;
+    }
+
+    #product-table > thead tr > th:first-child,
+    #delivery-note-table > thead tr > th:first-child,
+    #task-table > thead tr > th:first-child {
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    #product-table > thead tr > th:last-child,
+    #delivery-note-table > thead tr > th:last-child,
+    #task-table > thead tr > th:last-child {
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
+        background-color: #F7F7F7;
+        border-bottom: 1px solid var(--primary-color);
+        padding: 1rem;
+    }
+
+    #product-table > tbody > tr > td:first-child,
+    #delivery-note-table > tbody > tr > td:first-child,
+    #task-table > tbody > tr > td:first-child {
+        color: var(--primary-color);
+    }
+
+    #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
+        text-align: right;
+    }
+
+    #table-totals {
+        page-break-inside: avoid;
+    }
+
+    #table-totals {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 80px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
+    }
+
+    #table-totals
+    > *
+    [data-element='product-table-balance-due-label'],
+    #table-totals
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+    }
+
+    #table-totals
+    > *
+    [data-element='product-table-balance-due'] {
+        color: var(--primary-color);
+    }
+
+    #table-totals > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    #header {
+        position: fixed;
+        top: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;
+    }
+
+    #header > * {
+        padding: 10px;
+    }
+
+    [data-ref="total_table-footer"] {
+        text-align: left;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    #footer {
+        margin-top: 1rem;
+    }
+</style>
+
+
+<div id="header">
+    <div style="background-color: #00968B"><!-- 1 --></div>
+    <div style="background-color: #1D756E"><!-- 2 --></div>
+    <div style="background-color: #FCB600"><!-- 3 --></div>
+    <div style="background-color: #BA932F"><!-- 4 --></div>
+    <div style="background-color: #A72A4E"><!-- 5 --></div>
+    <div style="background-color: #E20041"><!-- 6 --></div>
+    <div style="background-color: #F8B300"><!-- 7 --></div>
+    <div style="background-color: #009B8F"><!-- 8 --></div>
+</div>
+
+<div id="body">
+    <div class="header-wrapper">
+        <img
+            class="company-logo"
+            src="$company.logo"
+            alt="$company.name logo"
+        />
+
+        <div></div>
+
+        <div class="entity-details-wrapper">
+            <table id="entity-details" cellspacing="0"></table>
+        </div>
+    </div>
+
+    <div class="contacts-wrapper">
+        <div class="contact-wrapper-left-side">
+            <p class="contact-label">$from_label:</p>
+            <div class="company-info">
+                <div id="company-details"></div>
+                <div id="company-address"></div>
+            </div>
+        </div>
+
+        <div class="contact-wrapper-right-side">
+            <p class="contact-label">$to_label:</p>
+            <div id="client-details"></div>
+        </div>
+    </div>
+
+    <table id="product-table" cellspacing="0"></table>
+
+    <table id="task-table" cellspacing="0"></table>
+
+    <table id="delivery-note-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
+</div>
+
+<div id="footer">
+    <p data-ref="total_table-footer">$entity_footer</p>
+
+    <script>
+        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+        document.addEventListener('DOMContentLoaded', () => {
+            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                document.getElementById(tableIdentifier).childElementCount === 0
+                    ? document.getElementById(tableIdentifier).style.display = 'none'
+                    : '';
+            });
+        });
+    </script>
+</div>
+

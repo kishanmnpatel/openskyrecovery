@@ -1,0 +1,255 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Jobs\Mail;
+
+use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\SystemLogger;
+use App\Libraries\Google\Google;
+use App\Libraries\MultiDB;
+use App\Mail\TemplateEmail;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\User;
+use App\Providers\MailServiceProvider;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Dacastro4\LaravelGmail\Facade\LaravelGmail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
+use Turbo124\Beacon\Facades\LightLogs;
+
+/*Multi Mailer implemented*/
+
+class NinjaMailerJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+
+    public $tries = 3; //number of retries
+
+    public $backoff = 10; //seconds to wait until retry
+
+    public $deleteWhenMissingModels = true;
+
+    public $nmo;
+
+    public $override;
+
+    public $company;
+
+    private $mailer;
+
+    public function __construct(NinjaMailerObject $nmo, bool $override = false)
+    {
+
+        $this->nmo = $nmo;
+        $this->override = $override;
+
+    }
+
+    public function handle()
+    {
+        
+        if($this->preFlightChecksFail())
+            return;
+
+        /*Set the correct database*/
+        MultiDB::setDb($this->nmo->company->db);
+
+        /* Serializing models from other jobs wipes the primary key */
+        $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
+
+        /* Set the email driver */
+        $this->setMailDriver();
+
+        if (strlen($this->nmo->settings->reply_to_email) > 1) {
+            
+            if(property_exists($this->nmo->settings, 'reply_to_name'))
+                $reply_to_name = strlen($this->nmo->settings->reply_to_name) > 3 ? $this->nmo->settings->reply_to_name : $this->nmo->settings->reply_to_email;
+            else
+                $reply_to_name = $this->nmo->settings->reply_to_email;
+
+            $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
+
+        }
+        else {
+            $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
+        }
+
+        //send email
+        try {
+            nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
+            nlog("Using mailer => ". $this->mailer);
+
+            Mail::mailer($this->mailer)
+                ->to($this->nmo->to_user->email)
+                ->send($this->nmo->mailable);
+
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
+                     ->batch();
+
+        } catch (\Exception $e) {
+
+            nlog("error failed with {$e->getMessage()}");
+
+            if($this->nmo->entity)
+                $this->entityEmailFailed($e->getMessage());
+
+            if(Ninja::isHosted())
+                app('sentry')->captureException($e);
+        }
+    }
+
+    /* Switch statement to handle failure notifications */
+    private function entityEmailFailed($message)
+    {
+        $class = get_class($this->nmo->entity);
+
+        switch ($class) {
+            case Invoice::class:
+                event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+                break;
+            case Payment::class:
+                event(new PaymentWasEmailedAndFailed($this->nmo->entity, $this->nmo->company, $message, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        if ($this->nmo->to_user instanceof ClientContact) 
+            $this->logMailError($message, $this->nmo->to_user->client);
+    }
+
+    private function setMailDriver()
+    {
+        /* Singletons need to be rebooted each time just in case our Locale is changing*/
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->nmo->settings));
+
+        switch ($this->nmo->settings->email_sending_method) {
+            case 'default':
+                $this->mailer = config('mail.default');
+                break;
+            case 'gmail':
+                $this->mailer = 'gmail';
+                $this->setGmailMailer();
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private function setGmailMailer()
+    {
+        if(LaravelGmail::check())
+            LaravelGmail::logout();
+
+        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+
+        $user = User::find($this->decodePrimaryKey($sending_user));
+
+        nlog("Sending via {$user->name()}");
+
+        $google = (new Google())->init();
+
+        try{
+
+            if ($google->getClient()->isAccessTokenExpired()) {
+                $google->refreshToken($user);
+                $user = $user->fresh();
+            }
+
+            $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+
+        }
+        catch(\Exception $e) {
+            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
+
+
+
+        /*
+         *  Now that our token is refreshed and valid we can boot the
+         *  mail driver at runtime and also set the token which will persist
+         *  just for this request.
+        */
+
+        // config(['mail.driver' => 'gmail']);
+        // (new MailServiceProvider(app()))->register();
+
+        $token = $user->oauth_user_token->access_token;
+
+        $this->nmo
+             ->mailable
+             ->from($user->email, $user->name())
+             ->withSwiftMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+             });
+
+    }
+
+    private function preFlightChecksFail()
+    {
+        /* If we are migrating data we don't want to fire any emails */
+        if ($this->nmo->company->is_disabled && !$this->override) 
+            return true;
+
+        /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
+        if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
+            return true;
+
+        return false;
+    }
+
+    private function logMailError($errors, $recipient_object)
+    {
+        SystemLogger::dispatch(
+            $errors,
+            SystemLog::CATEGORY_MAIL,
+            SystemLog::EVENT_MAIL_SEND,
+            SystemLog::TYPE_FAILURE,
+            $recipient_object,
+            $this->nmo->company
+        );
+    }
+
+    public function failed($exception = null)
+    {
+        nlog('mailer job failed');
+        nlog($exception->getMessage());
+        
+        $job_failure = new EmailFailure($this->nmo->company->company_key);
+        $job_failure->string_metric5 = 'failed_email';
+        $job_failure->string_metric6 = substr($exception->getMessage(), 0, 150);
+
+        LightLogs::create($job_failure)
+                 ->batch();
+    }
+}
