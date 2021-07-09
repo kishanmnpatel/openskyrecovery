@@ -2521,6 +2521,7 @@ $LANG = array(
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
     'sepa' => 'SEPA Direct Debit',
+    'forte' => 'Forte',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',

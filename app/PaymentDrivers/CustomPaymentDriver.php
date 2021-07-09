@@ -49,6 +49,118 @@ class CustomPaymentDriver extends BaseDriver
         return $this;
     }
 
+    public function authorizeView(array $data)
+    {
+        // dd($data);
+        return render('gateways.custom.authorize', $data);
+        // return $this->payment_method->authorizeView($data); //this is your custom implementation from here
+    }
+
+    public function authorizeResponse($request)
+    {
+        // echo '{
+        //     "notes":"Brwn Work Card",
+        //     "card": {
+        //         "name_on_card":"'.$request->card_holders_name.'",
+        //         "card_type":"visa",
+        //         "account_number":"'.$request->card_number.'",
+        //         "expire_month":'.$request->expiry_month.',
+        //         "expire_year":'.$request->expiry_year.',
+        //         "card_verification_value": "'.$request->cvc.'"
+        //     }   
+        // }';
+        // dd($request->all());
+        $client=auth()->user()->client;
+        if ($client->customer_token == null || $client->customer_token == '') {
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://sandbox.forte.net/api/v3/organizations/org_410728/locations/loc_278961/customers/',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "first_name": "'.$client->name.'",
+                "last_name": "'.$client->name.'",
+                "company_name": "'.$client->name.'",
+                "customer_id": "'.$client->number.'"
+            }',
+            CURLOPT_HTTPHEADER => array(
+                'X-Forte-Auth-Organization-Id: org_410728',
+                'Content-Type: application/json',
+                'Authorization: Basic ZjRjMDJhZDA0NDIwOGQzYjNlMDNmZTMyMDZlODU2YWY6MzI2YjY1ZjA4NWVjNjUxMzY0ZDg2M2FjY2Q4MzkxYzc=',
+                'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=eeFJXPvhGXW3XVl0R1efXgAAAAC5hY2Arn4aSDDQA+R2vZZu; incap_ses_713_621087=IuVrdOb1HwK0pTS8ExblCT8B6GAAAAAAWyswWx7wzWve4j23+Nsp4w=='
+            ),
+            ));
+    
+            $response = curl_exec($curl);
+    
+            curl_close($curl);
+            
+            $response=json_decode($response);
+            $client->customer_token=$response->customer_token;
+            $client->save();
+        }
+        
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://sandbox.forte.net/api/v3/organizations/org_410728/locations/loc_278961/customers/'.$client->customer_token.'/paymethods',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS =>'{
+            "notes":"Brwn Work Card",
+            "card": {
+                "name_on_card":"'.$request->card_holders_name.'",
+                "card_type":"visa",
+                "account_number":"'.$request->card_number.'",
+                "expire_month":'.$request->expiry_month.',
+                "expire_year":20'.$request->expiry_year.',
+                "card_verification_value": "'.$request->cvc.'"
+            }   
+        }',
+        CURLOPT_HTTPHEADER => array(
+            'X-Forte-Auth-Organization-Id: org_410728',
+            'Content-Type: application/json',
+            'Authorization: Basic ZjRjMDJhZDA0NDIwOGQzYjNlMDNmZTMyMDZlODU2YWY6MzI2YjY1ZjA4NWVjNjUxMzY0ZDg2M2FjY2Q4MzkxYzc=',
+            'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS'
+        ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $response=json_decode($response);
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = (string) $response->card->expire_month;
+        $payment_meta->exp_year = (string) $response->card->expire_year;
+        $payment_meta->brand = (string) $response->card->card_type;
+        $payment_meta->last4 = (string) $response->card->last_4_account_number;
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $clientGatewayToken=new ClientGatewayToken();
+        $clientGatewayToken->company_id=2;
+        $clientGatewayToken->client_id=$client->id;
+        $clientGatewayToken->token=$response->paymethod_token;
+        $clientGatewayToken->company_gateway_id=5;
+        $clientGatewayToken->gateway_type_id=1;
+        $clientGatewayToken->meta=$payment_meta;
+        $clientGatewayToken->save();
+
+        return redirect()->route('client.payment_methods.index');
+    }
+
     /**
      * View for displaying custom content of the driver.
      *
@@ -73,8 +185,8 @@ class CustomPaymentDriver extends BaseDriver
         $this->payment_hash->save();
 
         $data['gateway'] = $this;
-
-        return render('gateways.custom.payment', $data);
+        // dd($data);
+        return render('gateways.custom.pay', $data);
     }
 
     /**
@@ -84,7 +196,49 @@ class CustomPaymentDriver extends BaseDriver
      */
     public function processPaymentResponse($request)
     {
-        return redirect()->route('client.invoices');
+        $data=$request;
+        // dd($data);
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://sandbox.forte.net/api/v3/organizations/org_410728/locations/loc_278961/transactions',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS =>'{
+            "action":"sale",
+            "authorization_amount": '.$data->amount_with_fee.',
+            "paymethod_token": "'.$data->payment_token.'",
+            "billing_address":{
+            "first_name": "'.auth()->user()->client->name.'",
+            "last_name": "'.auth()->user()->client->name.'"
+        }
+        }',
+        CURLOPT_HTTPHEADER => array(
+            'X-Forte-Auth-Organization-Id: org_410728',
+            'Content-Type: application/json',
+            'Authorization: Basic ZjRjMDJhZDA0NDIwOGQzYjNlMDNmZTMyMDZlODU2YWY6MzI2YjY1ZjA4NWVjNjUxMzY0ZDg2M2FjY2Q4MzkxYzc=',
+            'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=tVVcSY5O+xzIMhyvR1efXgAAAABn4GsrsejFXewG9LEvz7cm; incap_ses_713_621087=fcX1QL+cdVg9Szu8ExblCYU06GAAAAAAgm6Ddpkg9bfkAth70P7yfw=='
+        ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $response=json_decode($response);
+
+        $data['gateway_type_id']=GatewayType::CREDIT_CARD;
+        $data['amount']=$request->amount_with_fee;
+        $data['payment_type']=6;
+        $data['transaction_reference']=$response->transaction_id;
+        // dd($data);
+        $payment=$this->createPayment($data, Payment::STATUS_COMPLETED);
+        return redirect('client/invoices');
     }
 
     /**

@@ -19,7 +19,7 @@
                 <div class="bg-white rounded-md shadow-xs">
                     <div class="py-1">
                         @foreach($methods as $index => $method)
-                            @if($method['label'] == 'Custom')
+                            @if($method['label'] == 'Forte ')
                                 <a href="#" @click="{ open = false }" data-cy="pay-with-custom"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
