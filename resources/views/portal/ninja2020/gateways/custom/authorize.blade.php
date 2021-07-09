@@ -26,6 +26,7 @@
         <input type="hidden" name="dataDescriptor" id="dataDescriptor"/>
         <input type="hidden" name="expiry_month" id="expiration_month">
         <input type="hidden" name="expiry_year" id="expiration_year">
+        <input type="hidden" name="card_type" id="card_type">
 
         @if(!Request::isSecure())
             <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
@@ -69,6 +70,21 @@
     <script src="{{ asset('js/clients/payment_methods/authorize-authorize-card.js') }}"></script> --}}
     <script>
         function submitCard(){
+            var doc = document.getElementsByClassName("card-number-wrapper");
+            var cardType=doc[0].childNodes[1].classList[2];
+            if (cardType=='master-card') {
+                document.getElementById('card_type').value='mast';
+            } else if(cardType=='visa') {
+                document.getElementById('card_type').value='visa';
+            }else if(cardType=='jcb') {
+                document.getElementById('card_type').value='jcb';
+            }else if(cardType=='discover') {
+                document.getElementById('card_type').value='disc';
+            }else if(cardType=='american-express') {
+                document.getElementById('card_type').value='amex';
+            }else{
+                document.getElementById('card_type').value=cardType;
+            }
             var month=document.querySelector('input[name=expiry-month]').value;
             var year=document.querySelector('input[name=expiry-year]').value;
             document.getElementById('expiration_month').value=month;

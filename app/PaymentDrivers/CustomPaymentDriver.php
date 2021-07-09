@@ -121,7 +121,7 @@ class CustomPaymentDriver extends BaseDriver
             "notes":"Brwn Work Card",
             "card": {
                 "name_on_card":"'.$request->card_holders_name.'",
-                "card_type":"visa",
+                "card_type":"'.$request->card_type.'",
                 "account_number":"'.$request->card_number.'",
                 "expire_month":'.$request->expiry_month.',
                 "expire_year":20'.$request->expiry_year.',
