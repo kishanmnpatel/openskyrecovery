@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$possibleAutoloadPaths = [
+    __DIR__ . '/../../autoload.php',
+    __DIR__ . '/../autoload.php',
+    __DIR__ . '/vendor/autoload.php',
+];
+
+foreach ($possibleAutoloadPaths as $possibleAutoloadPath) {
+    if (file_exists($possibleAutoloadPath)) {
+        require_once $possibleAutoloadPath;
+        break;
+    }
+}
+
+use Beganovich\Snappdf\Command\DownloadChromiumCommand;
+use Beganovich\Snappdf\Command\ConvertHtmlToPdfCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application('Snappdf');
+
+$application->add(new DownloadChromiumCommand());
+$application->add(new ConvertHtmlToPdfCommand());
+
+$application->run();

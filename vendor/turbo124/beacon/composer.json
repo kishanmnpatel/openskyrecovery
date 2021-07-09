@@ -1,0 +1,57 @@
+{
+    "name": "turbo124/beacon",
+    "description": "Application level data collector package for laravel",
+    "keywords": [
+        "turbo124",
+        "beacon",
+        "light logs",
+        "lightlogs"
+    ],
+    "homepage": "https://github.com/turbo124/beacon",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "David Bomba",
+            "email": "turbo124@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^7.4|^8",
+        "guzzlehttp/guzzle": "^7",
+        "illuminate/support": "^6.0|^7.0|^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Turbo124\\Beacon\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Turbo124\\Beacon\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Turbo124\\Beacon\\CollectorServiceProvider"
+            ],
+            "aliases": {
+                "Beacon": "Turbo124\\Beacon\\CollectorFacade"
+            }
+        }
+    }
+}

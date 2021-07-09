@@ -1,0 +1,36 @@
+{
+    "name": "beganovich/snappdf",
+    "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Beganović",
+            "email": "k1pstabug@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Beganovich\\Snappdf\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\Snappdf\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^7.3|^7.4|^8.0",
+        "ext-json": "*",
+        "ext-zip": "*",
+        "symfony/process": "^5.2",
+        "symfony/console": "^5.2",
+        "symfony/filesystem": "^5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "friendsofphp/php-cs-fixer": "^2.17",
+        "ext-fileinfo": "*"
+    },
+    "bin": ["snappdf"]
+}

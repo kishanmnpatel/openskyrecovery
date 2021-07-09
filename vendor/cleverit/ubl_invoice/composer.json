@@ -1,0 +1,38 @@
+{
+    "name": "cleverit/ubl_invoice",
+    "description": "A PHP wrapper for UBL invoices",
+    "keywords": [
+        "ubl", "invoice", "ublinvoice", "cleverit", "clever invoice", "electronic invoice", "xml", "xml invoice"
+    ],
+    "homepage": "https://github.com/CleverIT/UBL_invoice",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bram van Eijk | CleverIT",
+            "email": "bram@cleverit.nl",
+            "homepage": "http://www.cleverit.nl",
+            "role": "Developer"
+        }
+    ],
+
+    "require": {
+        "sabre/xml": "^1.5"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "CleverIt\\UBL\\Invoice\\": ["src/"]
+        }
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "^7.5",
+        "greenter/ubl-validator": "^2.0"
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "CleverIt\\UBL\\Invoice\\Tests\\": "tests/"
+        }
+    }
+}
