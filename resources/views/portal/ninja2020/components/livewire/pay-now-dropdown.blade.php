@@ -25,7 +25,8 @@
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                                    data-cy="payment-method">
-                                    {{ \App\Models\CompanyGateway::find($method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
+                                    {{-- {{ \App\Models\CompanyGateway::find($method['company_gateway_id'])->firstOrFail()->getConfigField('name') }} --}}
+                                    Forte
                                 </a>
                             @elseif($total > 0)
                                 <a href="#" @click="{ open = false }" data-cy="pay-with-{{ $index }}"
