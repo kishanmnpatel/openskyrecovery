@@ -1,6 +1,6 @@
 /node_modules
-/public/hot
-/public/storage
+#/public/hot
+#/public/storage
 /storage/*.key
 /vendor
 /.idea
@@ -16,7 +16,7 @@ local_version.txt
 .phpunit.result.cache
 
 /resources/assets/bower
-/public/logo
+#/public/logo
 /storage/*.key
 /storage/documents
 /storage/import
@@ -24,7 +24,7 @@ local_version.txt
 storage/version.txt
 storage/framework/.DS_Store
 .env.dusk.local
-/public/vendors/*
+#/public/vendors/*
 *.log
 
 # Ignore local migrations
@@ -32,7 +32,7 @@ storage/migrations
 nbproject
 
 .php_cs.cache
-public/test.pdf
-public/storage/test.pdf
+#public/test.pdf
+#public/storage/test.pdf
 /Modules
 invoiceninja.zip
