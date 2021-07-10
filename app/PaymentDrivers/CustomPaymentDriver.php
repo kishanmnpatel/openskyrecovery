@@ -12,12 +12,13 @@
 
 namespace App\PaymentDrivers;
 
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\HtmlEngine;
+use App\Models\GatewayType;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Class CustomPaymentDriver.
@@ -70,6 +71,13 @@ class CustomPaymentDriver extends BaseDriver
         //     }   
         // }';
         // dd($request->all());
+        $request->validate([
+            'card_number'=>'required|min:14|max:16',
+            'card_holders_name'=>'required|string',
+            'expiry_month'=>'required|numeric:2',
+            'expiry_year'=>'required|numeric:2',
+            'cvc'=>'required|numeric:3',
+        ]);
         $client=auth()->user()->client;
         if ($client->customer_token == null || $client->customer_token == '') {
             $curl = curl_init();
@@ -137,10 +145,14 @@ class CustomPaymentDriver extends BaseDriver
         ));
 
         $response = curl_exec($curl);
-
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-
         $response=json_decode($response);
+
+        if ($httpcode>299) {
+            Session::flash('error', $response->response->response_desc); 
+            return redirect()->back();
+        }
 
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = (string) $response->card->expire_month;
@@ -227,10 +239,15 @@ class CustomPaymentDriver extends BaseDriver
         ));
 
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
 
         $response=json_decode($response);
+        if ($httpcode>299) {
+            Session::flash('error', $response->response->response_desc); 
+            return redirect('client/invoices');
+        }
 
         $data['gateway_type_id']=GatewayType::CREDIT_CARD;
         $data['amount']=$request->amount_with_fee;
@@ -238,6 +255,7 @@ class CustomPaymentDriver extends BaseDriver
         $data['transaction_reference']=$response->transaction_id;
         // dd($data);
         $payment=$this->createPayment($data, Payment::STATUS_COMPLETED);
+        Session::flash('success', 'Invoice Paid successfully.'); 
         return redirect('client/invoices');
     }
 

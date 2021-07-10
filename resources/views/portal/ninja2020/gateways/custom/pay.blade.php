@@ -23,7 +23,7 @@
         <input type="hidden" name="store_card" id="store_card"/>
         <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
 
-        <div class="alert alert-failure mb-4" hidden id="errors"></div>
+        <div id="errors"></div>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
             {{ ctrans('texts.credit_card') }}
@@ -39,6 +39,7 @@
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
                             name="payment_token"
+                            id="payment_token"
                             value="{{ $token->token }}"
                             class="form-radio cursor-pointer toggle-payment-with-token"/>
                         <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
@@ -48,13 +49,15 @@
 
         @endcomponent
         <div class="bg-white px-4 py-5 flex justify-end">
-            <button type="submit"
+            <button type="button"
+            onclick="submitPay()"
                 class="button button-primary bg-primary {{ $class ?? '' }}">
                     <svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                 <span>{{ $slot ?? ctrans('texts.pay_now') }}</span>
+                <input type="submit" style="display: none" id="form_btn">
             </button>
         </div>
     </form>
@@ -62,11 +65,14 @@
 @endsection
 
 @section('gateway_footer')
-    @if($gateway->company_gateway->getConfigField('testMode'))
-        <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @else
-        <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @endif
-
-    <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
+    <script>
+        function submitPay(){
+            if ($("input:radio[name='payment_token']").is(":checked") == true) {
+            let button = document.querySelector("#form_btn");
+                button.click();
+            }else{
+                document.getElementById('errors').innerHTML='<div class="alert alert-failure mb-4">Please select Payemnt Method</div>'
+            }
+        }
+    </script>
 @endsection

@@ -32,7 +32,19 @@
             <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
         @endif
 
-        <div class="alert alert-failure mb-4" hidden id="errors"></div>
+        
+        @if(Session::has('error'))
+            <div class="alert alert-failure mb-4" id="errors">{{ Session::get('error') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-failure mb-4">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
             {{ ctrans('texts.credit_card') }}
