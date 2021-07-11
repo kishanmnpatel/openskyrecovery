@@ -56,7 +56,7 @@
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
             <select name="countries" id="country" name="country" class="form-select input w-full" required>
                 @foreach($countries as $country)
-                    <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                    <option value="{{ $country->iso_3166_2 }}" {{$country->iso_3166_2 == 'US' ? "selected" : ""}}>{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
                 @endforeach
             </select>
         @endcomponent
@@ -64,7 +64,7 @@
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.currency')])
             <select name="currencies" id="currency" name="currency" class="form-select input w-full">
                 @foreach($currencies as $currency)
-                    <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
+                    <option value="{{ $currency->code }}" {{$currency->code == 'USD' ? "selected" : ""}}>{{ $currency->code }} ({{ $currency->name }})</option>
                 @endforeach
             </select>
         @endcomponent
