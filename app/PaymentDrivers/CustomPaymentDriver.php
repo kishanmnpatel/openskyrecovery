@@ -230,7 +230,12 @@ class CustomPaymentDriver extends BaseDriver
             curl_close($curl);
             
             Log::info($request);
-            Log::info($client);
+            Log::info('{
+                "first_name": "'.$client->name.'",
+                "last_name": "'.$client->name.'",
+                "company_name": "'.$client->name.'",
+                "customer_id": "'.$client->number.'"
+            }');
             Log::info($response);
             $response=json_decode($response);
             $client->customer_token=$response->customer_token;
