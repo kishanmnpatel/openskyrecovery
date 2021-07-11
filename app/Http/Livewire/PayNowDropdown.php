@@ -12,8 +12,9 @@
 
 namespace App\Http\Livewire;
 
-use App\Libraries\MultiDB;
 use Livewire\Component;
+use App\Libraries\MultiDB;
+use App\Models\GatewayType;
 
 class PayNowDropdown extends Component
 {
@@ -30,6 +31,13 @@ class PayNowDropdown extends Component
         $this->total = $total;
 
         $this->methods = auth()->user()->client->service()->getPaymentMethods($total);
+        if($this->methods[0]['label'] == 'Forte '){
+            $this->methods[] = [
+            'label'=>'Bank Transfer',
+            'company_gateway_id'=>auth()->user()->client->service()->getPaymentMethods($total)[0]['company_gateway_id'],
+            'gateway_type_id'=>GatewayType::BANK_TRANSFER,
+            ];
+        }
     }
 
     public function render()

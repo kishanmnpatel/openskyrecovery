@@ -118,7 +118,16 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
-        // $gateway = $this->getClientGateway();
+        $gateway = $this->getClientGateway();
+        $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod(request()->query('method'))
+            ->checkRequirements()
+            ->detach($payment_method);
+
+        if ($gateway == false) {
+            return redirect()->back();
+        }
 
         $payment_method->gateway
             ->driver(auth()->user()->client)

@@ -9,9 +9,6 @@
             @endforeach
         </div>
     @endif
-    @if(Session::has('success'))
-        <div class="alert alert-success mb-4">{{ Session::get('success') }}</div>
-    @endif
     @if(Session::has('error'))
         <div class="alert alert-failure mb-4" id="errors">{{ Session::get('error') }}</div>
     @endif

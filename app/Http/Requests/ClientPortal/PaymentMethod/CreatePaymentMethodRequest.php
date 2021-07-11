@@ -24,6 +24,9 @@ class CreatePaymentMethodRequest extends FormRequest
 
         collect($client->service()->getPaymentMethods(1))
             ->filter(function ($method) use (&$available_methods) {
+                if ($method['label'] == 'Forte ') {
+                    $available_methods[] = 2;
+                }
                 $available_methods[] = $method['gateway_type_id'];
             });
 

@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => $gateway_title, 'card_title' => $gateway_title])
 
 @section('gateway_head')
     {{-- <meta name="authorize-public-key" content="{{ $public_client_id }}">
@@ -15,7 +15,7 @@
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
-        <input type="hidden" name="payment_method_id" value="1">
+        <input type="hidden" name="payment_method_id" value="{{$payment_method_id}}">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="dataValue" id="dataValue"/>
         <input type="hidden" name="dataDescriptor" id="dataDescriptor"/>

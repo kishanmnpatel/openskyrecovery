@@ -3,6 +3,9 @@
 
 @section('body')
     <div class="container mx-auto">
+        @if(Session::has('error'))
+            <div class="alert alert-failure mb-4" id="errors">{{ Session::get('error') }}</div>
+        @endif
         <div class="overflow-hidden bg-white shadow sm:rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">
