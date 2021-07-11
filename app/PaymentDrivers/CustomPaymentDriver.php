@@ -18,6 +18,7 @@ use App\Utils\HtmlEngine;
 use App\Models\GatewayType;
 use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 /**
@@ -228,6 +229,8 @@ class CustomPaymentDriver extends BaseDriver
     
             curl_close($curl);
             
+            Log::info($request);
+            Log::info($response);
             $response=json_decode($response);
             $client->customer_token=$response->customer_token;
             $client->save();

@@ -71,7 +71,7 @@
             let button = document.querySelector("#form_btn");
                 button.click();
             }else{
-                document.getElementById('errors').innerHTML='<div class="alert alert-failure mb-4">Please select Payemnt Method</div>'
+                document.getElementById('errors').innerHTML='<div class="alert alert-failure mb-4">Please select payemnt method</div>'
             }
         }
     </script>
