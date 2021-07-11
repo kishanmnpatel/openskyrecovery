@@ -109,9 +109,9 @@ class CustomPaymentDriver extends BaseDriver
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
-                "first_name": "'.$client->name.'",
-                "last_name": "'.$client->name.'",
-                "company_name": "'.$client->name.'",
+                "first_name": "'.$request->card_holders_name.'",
+                "last_name": "'.$request->card_holders_name.'",
+                "company_name": "'.$request->card_holders_name.'",
                 "customer_id": "'.$client->number.'"
             }',
             CURLOPT_HTTPHEADER => array(
@@ -212,9 +212,9 @@ class CustomPaymentDriver extends BaseDriver
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
-                "first_name": "'.$client->name.'",
-                "last_name": "'.$client->name.'",
-                "company_name": "'.$client->name.'",
+                "first_name": "'.$request->account_holder_name.'",
+                "last_name": "'.$request->account_holder_name.'",
+                "company_name": "'.$request->account_holder_name.'",
                 "customer_id": "'.$client->number.'"
             }',
             CURLOPT_HTTPHEADER => array(
@@ -229,14 +229,14 @@ class CustomPaymentDriver extends BaseDriver
     
             curl_close($curl);
             
-            Log::info($request);
-            Log::info('{
-                "first_name": "'.$client->name.'",
-                "last_name": "'.$client->name.'",
-                "company_name": "'.$client->name.'",
-                "customer_id": "'.$client->number.'"
-            }');
-            Log::info($response);
+            // Log::info($request);
+            // Log::info('{
+            //     "first_name": "'.$client->name.'",
+            //     "last_name": "'.$client->name.'",
+            //     "company_name": "'.$client->name.'",
+            //     "customer_id": "'.$client->number.'"
+            // }');
+            // Log::info($response);
             $response=json_decode($response);
             $client->customer_token=$response->customer_token;
             $client->save();
