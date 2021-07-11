@@ -31,6 +31,13 @@ class CustomPaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = false;
 
+    private $forte_mode="sandbox";
+    private $forte_api_access_id="f4c02ad044208d3b3e03fe3206e856af";
+    private $forte_secure_key="326b65f085ec651364d863accd8391c7";
+    private $forte_auth_organization_id="org_300005";
+    private $forte_organization_id="org_410728";
+    private $forte_location_id="loc_278961";
+
     /**
      * Returns the gateway types.
      */
@@ -92,7 +99,7 @@ class CustomPaymentDriver extends BaseDriver
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/customers/',
+            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -107,9 +114,9 @@ class CustomPaymentDriver extends BaseDriver
                 "customer_id": "'.$client->number.'"
             }',
             CURLOPT_HTTPHEADER => array(
-                'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+                'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                 'Content-Type: application/json',
-                'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+                'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
                 'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=eeFJXPvhGXW3XVl0R1efXgAAAAC5hY2Arn4aSDDQA+R2vZZu; incap_ses_713_621087=IuVrdOb1HwK0pTS8ExblCT8B6GAAAAAAWyswWx7wzWve4j23+Nsp4w=='
             ),
             ));
@@ -126,7 +133,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/customers/'.$client->customer_token.'/paymethods',
+        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -146,9 +153,9 @@ class CustomPaymentDriver extends BaseDriver
             }   
         }',
         CURLOPT_HTTPHEADER => array(
-            'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+            'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
             'Content-Type: application/json',
-            'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+            'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
             'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS'
         ),
         ));
@@ -195,7 +202,7 @@ class CustomPaymentDriver extends BaseDriver
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/customers/',
+            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -210,9 +217,9 @@ class CustomPaymentDriver extends BaseDriver
                 "customer_id": "'.$client->number.'"
             }',
             CURLOPT_HTTPHEADER => array(
-                'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+                'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                 'Content-Type: application/json',
-                'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+                'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
                 'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=eeFJXPvhGXW3XVl0R1efXgAAAAC5hY2Arn4aSDDQA+R2vZZu; incap_ses_713_621087=IuVrdOb1HwK0pTS8ExblCT8B6GAAAAAAWyswWx7wzWve4j23+Nsp4w=='
             ),
             ));
@@ -229,7 +236,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/customers/'.$client->customer_token.'/paymethods',
+        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -247,9 +254,9 @@ class CustomPaymentDriver extends BaseDriver
             }
         }',
         CURLOPT_HTTPHEADER => array(
-            'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+            'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
             'Content-Type: application/json',
-            'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+            'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
             'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=tVVcSY5O+xzIMhyvR1efXgAAAABn4GsrsejFXewG9LEvz7cm; incap_ses_9153_621087=wAileyRCBU3lBWqsNP0Ff80/6GAAAAAASCPsRmBm9ygyrCA0iBX3kg==; incap_ses_9210_621087=OHvJaqfG9Cc+r/0GZX7Qf10a6WAAAAAA1CWMfnTjC/4Y/4bz/HTgBg==; incap_ses_713_621087=Lu/yR4IM2iokOlO8ExblCSWB6WAAAAAANBLUy0jRk/4YatHkXIajvA=='
         ),
         ));
@@ -328,7 +335,7 @@ class CustomPaymentDriver extends BaseDriver
 
         if($data->payment_method_id == 1){
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/transactions',
+            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -346,15 +353,15 @@ class CustomPaymentDriver extends BaseDriver
                 }
             }',
             CURLOPT_HTTPHEADER => array(
-                'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+                'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                 'Content-Type: application/json',
-                'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+                'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
                 'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=tVVcSY5O+xzIMhyvR1efXgAAAABn4GsrsejFXewG9LEvz7cm; incap_ses_713_621087=fcX1QL+cdVg9Szu8ExblCYU06GAAAAAAgm6Ddpkg9bfkAth70P7yfw=='
             ),
             ));
         }elseif($data->payment_method_id == 2){
             curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/transactions',
+                CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -375,9 +382,9 @@ class CustomPaymentDriver extends BaseDriver
                     }
                 }',
                 CURLOPT_HTTPHEADER => array(
-                    'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
+                    'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                     'Content-Type: application/json',
-                    'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+                    'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
                     'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=tVVcSY5O+xzIMhyvR1efXgAAAABn4GsrsejFXewG9LEvz7cm; incap_ses_713_621087=fcX1QL+cdVg9Szu8ExblCYU06GAAAAAAgm6Ddpkg9bfkAth70P7yfw=='
                 ),
                 ));
@@ -415,7 +422,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.env('FORTE_MODE').'.forte.net/api/v3/organizations/'.env('FORTE_ORGANIZATION_ID').'/locations/'.env('FORTE_LOCATION_ID').'/paymethods/'.$token->token,
+        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/paymethods/'.$token->token,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -424,8 +431,8 @@ class CustomPaymentDriver extends BaseDriver
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'DELETE',
         CURLOPT_HTTPHEADER => array(
-            'X-Forte-Auth-Organization-Id: '.env('FORTE_ORGANIZATION_ID'),
-            'Authorization: Basic '.base64_encode(env('FORTE_API_ACCESS_ID').':'.env('FORTE_SECURE_KEY')),
+            'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
+            'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
             'Cookie: visid_incap_621087=QJCccwHeTHinK5DnAeQIuXPk5mAAAAAAQUIPAAAAAAATABmm7IZkHhUi85sN+UaS; nlbi_621087=tVVcSY5O+xzIMhyvR1efXgAAAABn4GsrsejFXewG9LEvz7cm; incap_ses_9153_621087=wAileyRCBU3lBWqsNP0Ff80/6GAAAAAASCPsRmBm9ygyrCA0iBX3kg==; incap_ses_9210_621087=OHvJaqfG9Cc+r/0GZX7Qf10a6WAAAAAA1CWMfnTjC/4Y/4bz/HTgBg==; incap_ses_713_621087=I+TAKy3YCA4t9FO8ExblCa+K6WAAAAAAfzQ3eTcdBh4rJjnrZAB9OA=='
         ),
         ));
