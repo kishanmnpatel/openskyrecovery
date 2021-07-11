@@ -123,14 +123,10 @@ class CustomPaymentDriver extends BaseDriver
             ));
     
             $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    
             curl_close($curl);
+            
             $response=json_decode($response);
-
-            if ($httpcode>299) {
-                Session::flash('error', $response->response->response_desc); 
-                return redirect('payment_methods/create?method='.GatewayType::BANK_TRANSFER);
-            }
             $client->customer_token=$response->customer_token;
             $client->save();
         }
@@ -230,18 +226,13 @@ class CustomPaymentDriver extends BaseDriver
             ));
     
             $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    
             curl_close($curl);
-            $response=json_decode($response);
-
-            if ($httpcode>299) {
-                Session::flash('error', $response->response->response_desc); 
-                return redirect('payment_methods/create?method='.GatewayType::BANK_TRANSFER);
-            }
             
-            Log::info($client);
             Log::info($request);
+            Log::info($client);
             Log::info($response);
+            $response=json_decode($response);
             $client->customer_token=$response->customer_token;
             $client->save();
         }
