@@ -32,12 +32,12 @@ class CustomPaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = false;
 
-    private $forte_mode="sandbox";
-    private $forte_api_access_id="f4c02ad044208d3b3e03fe3206e856af";
-    private $forte_secure_key="326b65f085ec651364d863accd8391c7";
+    private $forte_base_uri="https://api.forte.net/v3/";
+    private $forte_api_access_id="6106e6bb2a66bc9b9302bf2cf32ea885";
+    private $forte_secure_key="f3ab50eb9d8b47dd9ecc0596a435ea57";
     private $forte_auth_organization_id="org_300005";
-    private $forte_organization_id="org_410728";
-    private $forte_location_id="loc_278961";
+    private $forte_organization_id="org_409865";
+    private $forte_location_id="loc_277878";
 
     /**
      * Returns the gateway types.
@@ -89,18 +89,18 @@ class CustomPaymentDriver extends BaseDriver
     private function authorizeCreditCardResponse($request)
     {
         $request->validate([
-            'card_number'=>'required|min:14|max:16',
+            'card_number'=>'required',
             'card_holders_name'=>'required|string',
-            'expiry_month'=>'required|numeric:2',
-            'expiry_year'=>'required|numeric:2',
-            'cvc'=>'required|numeric:3',
+            'expiry_month'=>'required',
+            'expiry_year'=>'required',
+            'cvc'=>'required',
         ]);
         $client=auth()->user()->client;
         if ($client->customer_token == null || $client->customer_token == '') {
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
+            CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -134,7 +134,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
+        CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -147,7 +147,7 @@ class CustomPaymentDriver extends BaseDriver
             "card": {
                 "name_on_card":"'.$request->card_holders_name.'",
                 "card_type":"'.$request->card_type.'",
-                "account_number":"'.$request->card_number.'",
+                "account_number":"'.str_replace(' ', '', $request->card_number).'",
                 "expire_month":'.$request->expiry_month.',
                 "expire_year":20'.$request->expiry_year.',
                 "card_verification_value": "'.$request->cvc.'"
@@ -203,7 +203,7 @@ class CustomPaymentDriver extends BaseDriver
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
+            CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -237,7 +237,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
+        CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/customers/'.$client->customer_token.'/paymethods',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -336,7 +336,7 @@ class CustomPaymentDriver extends BaseDriver
 
         if($data->payment_method_id == 1){
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
+            CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -362,7 +362,7 @@ class CustomPaymentDriver extends BaseDriver
             ));
         }elseif($data->payment_method_id == 2){
             curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
+                CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -423,7 +423,7 @@ class CustomPaymentDriver extends BaseDriver
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://'.$this->forte_mode.'.forte.net/api/v3/organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/paymethods/'.$token->token,
+        CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/paymethods/'.$token->token,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
