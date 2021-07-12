@@ -143,7 +143,7 @@ class CustomPaymentDriver extends BaseDriver
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS =>'{
-            "notes":"Brwn Work Card",
+            "notes":"'.$request->card_holders_name.' Card",
             "card": {
                 "name_on_card":"'.$request->card_holders_name.'",
                 "card_type":"'.$request->card_type.'",
@@ -246,7 +246,7 @@ class CustomPaymentDriver extends BaseDriver
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS =>'{
-            "notes":"Brwn echeck",
+            "notes":"'.$request->account_holder_name.' echeck",
             "echeck": {
                 "account_holder": "'.$request->account_holder_name.'",
                 "account_number":"'.$request->account_number.'",
