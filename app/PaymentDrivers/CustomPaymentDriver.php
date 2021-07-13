@@ -38,6 +38,7 @@ class CustomPaymentDriver extends BaseDriver
     private $forte_auth_organization_id="org_300005";
     private $forte_organization_id="org_409865";
     private $forte_location_id="loc_277878";
+    private $service_fee=3;
 
     /**
      * Returns the gateway types.
@@ -345,9 +346,10 @@ class CustomPaymentDriver extends BaseDriver
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
-                "action":"sale",
+                "action":"authorize",
                 "authorization_amount": '.$data->amount_with_fee.',
                 "paymethod_token": "'.$data->payment_token.'",
+                "service_fee_amount": '.(($data->amount_with_fee/100)*$this->service_fee).',
                 "billing_address":{
                     "first_name": "'.auth()->user()->client->name.'",
                     "last_name": "'.auth()->user()->client->name.'"
