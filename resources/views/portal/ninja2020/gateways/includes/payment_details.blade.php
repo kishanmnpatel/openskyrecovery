@@ -8,6 +8,7 @@
     </dd>
 
     @if($total['fee_total'] > 0)
+        <input type="hidden" name="fee_total" value="{{$total['fee_total']}}">
         <dt class="text-sm leading-5 font-medium text-gray-500">
             {{ ctrans('texts.gateway_fees') }}
         </dt>

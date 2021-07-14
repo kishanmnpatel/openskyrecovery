@@ -347,9 +347,9 @@ class CustomPaymentDriver extends BaseDriver
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
                 "action":"authorize",
-                "authorization_amount": '.($data->amount_with_fee+(($data->amount_with_fee/100)*$this->service_fee)).',
+                "authorization_amount": '.$data->amount_with_fee.',
                 "paymethod_token": "'.$data->payment_token.'",
-                "service_fee_amount": '.(($data->amount_with_fee/100)*$this->service_fee).',
+                "service_fee_amount": '.$data->fee_total.',
                 "billing_address":{
                     "first_name": "'.auth()->user()->client->name.'",
                     "last_name": "'.auth()->user()->client->name.'"
