@@ -422,7 +422,7 @@ class Client extends BaseModel implements HasLocalePreference
         // return null;
         // 
 
-        $pms = $this->service()->getPaymentMethods(0);
+        $pms = $this->service()->getPaymentMethods(100);
 
             foreach($pms as $pm)
             {
@@ -453,7 +453,7 @@ class Client extends BaseModel implements HasLocalePreference
     //todo refactor this  - it is only searching for existing tokens
     public function getBankTransferGateway() :?CompanyGateway
     {
-        $pms = $this->service()->getPaymentMethods(0);
+        $pms = $this->service()->getPaymentMethods(100);
 
         if($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
 
