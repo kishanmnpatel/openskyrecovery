@@ -26,6 +26,9 @@ storage/framework/.DS_Store
 .env.dusk.local
 /public/vendors/*
 *.log
+/.env
+/app/PaymentDrivers/CustomPaymentDriver
+/app/PaymentDrivers/FortePaymentsDriver
 
 # Ignore local migrations
 storage/migrations
