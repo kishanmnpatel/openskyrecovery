@@ -28,6 +28,7 @@ use App\Models\Account;
 use App\Models\Timezone;
 use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Ninja;
+use App\Utils\Traits\User\LoginCache;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,7 @@ use Turbo124\Beacon\Facades\LightLogs;
 class CreateAccount
 {
     use Dispatchable;
+    use LoginCache;
 
     protected $request;
 
@@ -75,11 +77,14 @@ class CreateAccount
             $sp794f3f->key = Str::random(32);
         }
 
-        $sp794f3f->save();
-
         if(Ninja::isHosted())
-            $sp794f3f->startTrial('pro');
-
+        {
+            $sp794f3f->trial_started = now();
+            $sp794f3f->trial_plan = 'pro';
+            // $sp794f3f->plan = 'pro';
+            $sp794f3f->save();
+        }
+        
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');
         $sp794f3f->default_company_id = $sp035a66->id;
@@ -95,6 +100,8 @@ class CreateAccount
         }
 
         $spaa9f78->setCompany($sp035a66);
+        $this->setLoginCache($spaa9f78);
+
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         $sp2d97e8 = CreateCompanyToken::dispatchNow($sp035a66, $spaa9f78, $spafe62e);
 

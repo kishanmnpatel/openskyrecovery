@@ -86,9 +86,8 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk;
-        
-        // $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
+
     }
 
     public function handle()
@@ -132,8 +131,8 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
-        if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
-            $entity_design_id = 2;
+        // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
+        //     $entity_design_id = 2;
 
         $design = Design::find($entity_design_id);
 
@@ -201,11 +200,9 @@ class CreateEntityPdf implements ShouldQueue
                 
                 if(!Storage::disk($this->disk)->exists($path))
                     Storage::disk($this->disk)->makeDirectory($path, 0775);
+                
+                    Storage::disk($this->disk)->put($file_path, $pdf);
 
-                nlog($file_path);
-                
-                Storage::disk($this->disk)->put($file_path, $pdf);
-                
             }
             catch(\Exception $e)
             {

@@ -35,7 +35,6 @@ class GatewayTypesSeeder extends Seeder
             ['id' => 12, 'alias' => 'custom2', 'name' => 'Custom'],
             ['id' => 13, 'alias' => 'custom3', 'name' => 'Custom'],
             ['id' => 14, 'alias' => 'credit', 'name' => 'Credit'],
-	    ['id' => 15, 'alias' => 'fortepayments', 'name' => 'Forte Payments'],
         ];
 
         foreach ($gateway_types as $gateway_type) {

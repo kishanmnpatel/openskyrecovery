@@ -69,7 +69,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--paid_to_date=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--paid_to_date=} {--client_balance=}';
 
     /**
      * @var string
@@ -365,7 +365,7 @@ class CheckData extends Command
         /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
         $clients->each(function ($client_record) use ($credit_total_applied) {
             
-            $client = Client::find($client_record->id);
+            $client = Client::withTrashed()->find($client_record->id);
 
             $total_invoice_payments = 0;
 
@@ -506,6 +506,7 @@ class CheckData extends Command
                 $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client->balance, '0'). " Ledger balance = {$ledger->balance}");
 
                 $this->isValid = false;
+
             }
         }
 
@@ -535,6 +536,20 @@ class CheckData extends Command
                 $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
+
+
+                if($this->option('client_balance')){
+                    
+                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
+                    $client->balance = $invoice_balance;
+                    $client->save();
+
+                    $ledger->adjustment = $invoice_balance;
+                    $ledger->balance = $invoice_balance;
+                    $ledger->notes = 'Ledger Adjustment';
+                    $ledger->save();
+                }
+                
             }
         }
 
@@ -594,6 +609,7 @@ class CheckData extends Command
                 'client',
                 'client_contact',
                 'payment',
+                'recurring_invoice',
             ],
             'invoices' => [
                 'client',

@@ -2521,7 +2521,6 @@ $LANG = array(
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
     'sepa' => 'SEPA Direct Debit',
-    'forte' => 'Forte',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
@@ -4274,6 +4273,14 @@ $LANG = array(
     'already_default_payment_method' => 'This is your preferred way of paying.',
     'auto_bill_disabled' => 'Auto Bill Disabled',
     'select_payment_method' => 'Select a payment method:',
+    'login_without_password' => 'Log in without password',
+    'email_sent' => 'E-mail sent, please check your inbox.',
+    'one_time_purchases' => 'One time purchases',
+    'recurring_purchases' => 'Recurring purchases',
+    'you_might_be_interested_in_following' => 'You might be interested in the following',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'no_quotes_available_for_download' => 'No quotes available for download.',
+    'copyright' => 'Copyright',
 );
 
 return $LANG;

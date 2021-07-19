@@ -190,6 +190,11 @@ class Import implements ShouldQueue
     {
         set_time_limit(0);
 
+        nlog("Starting Migration");
+        nlog($this->user->email);
+        info("Starting Migration");
+        info($this->user->email);
+        
         auth()->login($this->user, false);
         auth()->user()->setCompany($this->company);
 
@@ -314,6 +319,12 @@ class Import implements ShouldQueue
         $account = $this->company->account;
         $account->fill($data);
         $account->save();
+
+        //Prevent hosted users being pushed into a trial
+        if(Ninja::isHosted() && $account->plan != ''){
+            $account->trial_plan = '';
+            $account->save();
+        }
     }
 
     /**
@@ -333,7 +344,7 @@ class Import implements ShouldQueue
 
         $data = $this->transformCompanyData($data);
 
-        if(Ninja::isHosted() && strlen($data['subdomain']) > 1) {
+        if(Ninja::isHosted()) {
 
             if(!MultiDB::checkDomainAvailable($data['subdomain']))
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
@@ -364,6 +375,10 @@ class Import implements ShouldQueue
             unset($data['referral_code']);
         }
 
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+            $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
+        }
+
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
 
@@ -385,8 +400,37 @@ class Import implements ShouldQueue
         $company_repository = null;
     }
 
+    private function parseCustomFields($fields) :array
+    {
+        
+        if(array_key_exists('account1', $fields))
+            $fields['company1'] = $fields['account1'];
+
+        if(array_key_exists('account2', $fields))
+            $fields['company2'] = $fields['account2'];
+
+        if(array_key_exists('invoice1', $fields))
+            $fields['surcharge1'] = $fields['invoice1'];
+
+        if(array_key_exists('invoice2', $fields))
+            $fields['surcharge2'] = $fields['invoice2'];
+
+        if(array_key_exists('invoice_text1', $fields))
+            $fields['invoice1'] = $fields['invoice_text1'];
+
+        if(array_key_exists('invoice_text2', $fields))
+            $fields['invoice2'] = $fields['invoice_text2'];
+
+        foreach ($fields as &$value) {
+            $value = (string) $value;
+        }
+
+        return $fields;
+    }
+
     private function transformCompanyData(array $data): array
     {
+
         $company_settings = CompanySettings::defaults();
 
         if (array_key_exists('settings', $data)) {
@@ -408,6 +452,7 @@ class Import implements ShouldQueue
 
             $data['settings'] = $company_settings;
         }
+
 
         return $data;
     }
@@ -489,7 +534,7 @@ class Import implements ShouldQueue
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
-            $user->confirmation_code = '';
+            // $user->confirmation_code = '';
 
             if($modified['deleted_at'])
                 $user->deleted_at = now();
@@ -521,13 +566,13 @@ class Import implements ShouldQueue
     {
         $value = trim($value);
 
-        $model_query = (new $model())
-                            ->query()
-                            ->where($column, $value)
-                            ->exists();
+        $model_query = $model::where($column, $value)
+                             ->where('company_id', $this->company->id)
+                             ->withTrashed()
+                             ->exists();
 
         if($model_query)
-            return $value.'_'. Str::random(5);
+            return $value . '_' . Str::random(5);
 
         return $value;
     }
@@ -1064,10 +1109,8 @@ class Import implements ShouldQueue
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             $modified['user_id'] = $this->processUserId($resource);
-            //$modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
             $modified['company_id'] = $this->company->id;
 
-            //unset($modified['invoices']);
             unset($modified['invoice_id']);
 
             if (isset($modified['invoices'])) {
@@ -1076,8 +1119,8 @@ class Import implements ShouldQueue
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                     } else {
                        nlog($modified['invoices']);
-                        // $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
-                        // $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
+                       unset($modified['invoices']);
+                       //if the transformation didn't work - you _must_ unset this data as it will be incorrect!
                     }
                 }
             }
@@ -1204,7 +1247,8 @@ class Import implements ShouldQueue
 
                 $try_quote = false;
                 $exception = false;
-
+                $entity = false;
+                
                 try{
                     $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
                     $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
@@ -1321,7 +1365,7 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
-            else if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 $modified['fees_and_limits'] = [];
             }
